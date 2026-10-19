@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Payment — Fortech | DANA, GoPay, QRIS</title>
+<meta name="description" content="Metode pembayaran untuk donasi atau pembayaran project — DANA, GoPay, dan QRIS AllPay." />
+<meta name="author" content="Iqbal Yudha Pramudya" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<style>
+:root {
+  --bg-0: #000000;
+  --bg-1: #05070a;
+  --bg-2: #0a0e14;
+  --blue-100: #e0f7ff;
+  --blue-200: #b8ecff;
+  --blue-300: #7dd3fc;
+  --blue-400: #38bdf8;
+  --blue-500: #00d4ff;
+  --blue-600: #0ea5e9;
+  --blue-glow: rgba(0, 212, 255, 0.5);
+  --blue-glow-strong: rgba(0, 212, 255, 0.28);
+  --text-0: #ffffff;
+  --text-1: #d7e3ef;
+  --text-2: #8ba0b4;
+  --text-3: #55687a;
+  --border-soft: rgba(125, 211, 252, 0.12);
+  --border-mid: rgba(125, 211, 252, 0.25);
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 32px;
+  --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.55);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-0);
+  color: var(--text-1);
+  line-height: 1.65;
+  overflow-x: hidden;
+  min-height: 100vh;
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+}
+img { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: none; border: none; background: none; color: inherit; }
+ul { list-style: none; }
+::selection { background: var(--blue-500); color: var(--bg-0); }
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-1); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--blue-500), var(--blue-600));
+  border-radius: 10px;
+  border: 2px solid var(--bg-1);
+}
+
+/* CURSOR */
+.cursor-dot, .cursor-ring {
+  position: fixed; top: 0; left: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+}
+.cursor-dot {
+  width: 6px; height: 6px;
+  background: var(--blue-500);
+  box-shadow: 0 0 12px var(--blue-500);
+}
+.cursor-ring {
+  width: 38px; height: 38px;
+  border: 1.5px solid var(--blue-400);
+  transition: transform 0.12s ease-out, width 0.25s ease, height 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  mix-blend-mode: difference;
+}
+.cursor-ring.hover {
+  width: 60px; height: 60px;
+  border-color: var(--blue-300);
+  background: rgba(0, 212, 255, 0.08);
+}
+.cursor-ring.click { width: 26px; height: 26px; }
+@media (hover: none) {
+  .cursor-dot, .cursor-ring { display: none; }
+  body { cursor: auto; }
+  button, a { cursor: pointer; }
+}
+
+/* BG */
+.bg-layer {
+  position: fixed; inset: 0; z-index: -3;
+  background:
+    radial-gradient(circle at 15% 12%, rgba(0, 212, 255, 0.10), transparent 45%),
+    radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.09), transparent 50%),
+    var(--bg-0);
+}
+.bg-grid {
+  position: fixed; inset: 0; z-index: -2;
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.045) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(circle at 50% 40%, #000 20%, transparent 78%);
+  -webkit-mask-image: radial-gradient(circle at 50% 40%, #000 20%, transparent 78%);
+  animation: gridFloat 24s linear infinite;
+}
+@keyframes gridFloat {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 60px 60px, 60px 60px; }
+}
+
+/* NAVBAR */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9000;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.4s var(--ease);
+  background: transparent;
+}
+.navbar.scrolled {
+  padding: 14px 40px;
+  background: rgba(5, 7, 10, 0.7);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-soft);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+.nav-logo .logo-mark {
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+  color: var(--bg-0);
+  font-weight: 900;
+  font-size: 1.05rem;
+  box-shadow: 0 0 24px var(--blue-glow);
+}
+.nav-logo .logo-text { color: var(--text-0); }
+.nav-logo .logo-text span { color: var(--blue-500); }
+
+.nav-cta { display: flex; align-items: center; gap: 12px; }
+.nav-cta .btn-nav {
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: 1px solid var(--border-mid);
+  color: var(--blue-300);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.35s var(--ease);
+  background: rgba(0, 212, 255, 0.04);
+}
+.nav-cta .btn-nav:hover {
+  background: var(--blue-500);
+  color: var(--bg-0);
+  border-color: var(--blue-500);
+  box-shadow: 0 0 30px var(--blue-glow);
+  transform: translateY(-2px);
+}
+
+/* QUICK MENU (3 DOT) */
+.quick-menu-wrap { position: relative; display: inline-flex; }
+.quick-menu-btn {
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid var(--border-mid);
+  background: rgba(0, 212, 255, 0.05);
+  transition: all 0.35s var(--ease);
+}
+.quick-menu-btn span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--blue-400);
+  box-shadow: 0 0 8px var(--blue-glow);
+  transition: all 0.35s var(--ease);
+}
+.quick-menu-btn:hover {
+  border-color: var(--blue-500);
+  background: rgba(0, 212, 255, 0.12);
+  box-shadow: 0 0 24px var(--blue-glow);
+}
+.quick-menu-btn:hover span {
+  background: var(--blue-300);
+  box-shadow: 0 0 12px var(--blue-500);
+}
+.quick-menu-btn.open {
+  background: var(--blue-500);
+  border-color: var(--blue-500);
+  box-shadow: 0 0 30px var(--blue-glow-strong);
+}
+.quick-menu-btn.open span { background: var(--bg-0); box-shadow: none; }
+.quick-menu-btn.open span:nth-child(1) { transform: translateY(11px) rotate(45deg); width: 18px; height: 2px; border-radius: 2px; }
+.quick-menu-btn.open span:nth-child(2) { opacity: 0; transform: scale(0); }
+.quick-menu-btn.open span:nth-child(3) { transform: translateY(-11px) rotate(-45deg); width: 18px; height: 2px; border-radius: 2px; }
+
+.quick-menu-panel {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 320px;
+  background: rgba(10, 14, 20, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 60px rgba(0, 212, 255, 0.18);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.96);
+  transform-origin: top right;
+  transition: all 0.35s var(--ease-out);
+  z-index: 9200;
+}
+.quick-menu-panel.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+.quick-menu-panel::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 15%; right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue-500), transparent);
+}
+.qm-header {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px 14px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.qm-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-0);
+}
+.qm-sub {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--blue-400);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.qm-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: var(--radius-md);
+  transition: all 0.3s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+.qm-item::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--blue-500), var(--blue-300));
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.35s var(--ease);
+}
+.qm-item:hover::before,
+.qm-item.active::before { transform: scaleY(1); }
+.qm-item:hover,
+.qm-item.active { background: rgba(0, 212, 255, 0.07); }
+.qm-item:hover .qm-ic,
+.qm-item.active .qm-ic {
+  background: rgba(0, 212, 255, 0.2);
+  color: var(--blue-300);
+  transform: scale(1.05) rotate(-6deg);
+}
+.qm-item:hover .qm-arrow { color: var(--blue-500); transform: translateX(3px); }
+.qm-ic {
+  width: 40px; height: 40px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  display: grid; place-items: center;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid var(--border-mid);
+  color: var(--blue-400);
+  font-size: 1rem;
+  transition: all 0.35s var(--ease);
+}
+.qm-txt {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.qm-txt strong { font-size: 0.9rem; font-weight: 600; color: var(--text-0); }
+.qm-txt small { font-size: 0.75rem; color: var(--text-3); }
+.qm-arrow { color: var(--text-3); font-size: 0.75rem; transition: all 0.3s var(--ease); }
+.qm-badge {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0, 212, 255, 0.15);
+  color: var(--blue-300);
+  border: 1px solid var(--border-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-left: 4px;
+}
+
+.quick-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9100;
+  background: transparent;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+.quick-menu-backdrop.open { opacity: 1; visibility: visible; }
+
+@media (max-width: 600px) {
+  .quick-menu-panel {
+    position: fixed;
+    top: 80px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+  }
+  .navbar { padding: 16px 20px; }
+  .navbar.scrolled { padding: 12px 20px; }
+  .nav-cta .btn-nav { display: none; }
+}
+
+/* MAIN */
+main {
+  padding: 130px 40px 80px;
+  max-width: 1240px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.page-head {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 60px;
+}
+.page-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--blue-500);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  margin-bottom: 18px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(0, 212, 255, 0.07);
+  border: 1px solid var(--border-mid);
+}
+.page-tag::before {
+  content: '';
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--blue-500);
+  box-shadow: 0 0 12px var(--blue-500);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.7; }
+}
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text-0);
+  margin-bottom: 18px;
+}
+.page-title .accent {
+  background: linear-gradient(120deg, var(--blue-400), var(--blue-300));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.page-desc {
+  color: var(--text-2);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+/* MAIN PAYMENT LAYOUT */
+.payment-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 40px;
+  align-items: start;
+  margin-bottom: 60px;
+}
+
+/* QRIS Card (Main/Featured) */
+.qris-card {
+  position: relative;
+  padding: 32px 28px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(160deg, rgba(0, 212, 255, 0.08), rgba(10, 14, 20, 0.95));
+  border: 1.5px solid var(--border-mid);
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 0 70px rgba(0, 212, 255, 0.15);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: transform 0.4s var(--ease-out);
+  position: sticky;
+  top: 100px;
+}
+.qris-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 10%; right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--blue-500), transparent);
+  box-shadow: 0 0 20px var(--blue-500);
+}
+.qris-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.qris-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(0, 212, 255, 0.12);
+  border: 1px solid var(--border-mid);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--blue-300);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+.qris-badge i { color: var(--blue-500); }
+.qris-primary-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+  color: var(--bg-0);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: 0 0 20px var(--blue-glow);
+}
+
+.qris-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-0);
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.qris-sub {
+  color: var(--text-2);
+  font-size: 0.88rem;
+  margin-bottom: 22px;
+}
+
+.qris-frame {
+  position: relative;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+.qris-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  padding: 2px;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-300), var(--blue-500));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.5;
+}
+.qris-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: #ffffff;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.qris-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 6px;
+}
+.qris-fallback {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #0a0e14;
+  padding: 30px;
+  text-align: center;
+}
+.qris-fallback i { font-size: 3rem; color: #0ea5e9; }
+.qris-fallback span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0a0e14;
+}
+.qris-fallback small {
+  font-size: 0.72rem;
+  color: #55687a;
+  font-family: var(--font-mono);
+}
+.qris-img-wrap.no-img img { display: none; }
+.qris-img-wrap.no-img .qris-fallback { display: flex; }
+
+.qris-scan-line {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+  box-shadow: 0 0 15px #00d4ff;
+  animation: scanLine 2.5s ease-in-out infinite;
+  border-radius: 2px;
+}
+@keyframes scanLine {
+  0% { top: 10%; opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { top: 90%; opacity: 0; }
+}
+
+.qris-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: rgba(0, 212, 255, 0.06);
+  border: 1px solid var(--border-soft);
+  font-size: 0.82rem;
+  color: var(--text-2);
+  text-align: center;
+}
+.qris-footer i { color: var(--blue-500); }
+
+/* Right column — other methods */
+.methods-col {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.methods-col-head {
+  margin-bottom: 4px;
+}
+.methods-col-head h3 {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--text-0);
+  margin-bottom: 6px;
+}
+.methods-col-head p {
+  color: var(--text-2);
+  font-size: 0.88rem;
+}
+
+.method-card {
+  position: relative;
+  padding: 26px 24px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, rgba(10, 14, 20, 0.9), rgba(5, 7, 10, 0.9));
+  border: 1px solid var(--border-soft);
+  overflow: hidden;
+  transition: all 0.35s var(--ease);
+}
+.method-card::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--blue-500), var(--blue-300));
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.35s var(--ease);
+}
+.method-card:hover {
+  border-color: var(--border-mid);
+  transform: translateX(4px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 255, 0.12);
+}
+.method-card:hover::before { transform: scaleY(1); }
+
+.method-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.method-logo {
+  width: 54px; height: 54px;
+  border-radius: 14px;
+  display: grid; place-items: center;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  border: 1px solid var(--border-mid);
+  transition: all 0.35s var(--ease);
+}
+.method-logo.dana {
+  background: linear-gradient(135deg, #118eea, #0a6fc4);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(17, 142, 234, 0.35);
+}
+.method-logo.gopay {
+  background: linear-gradient(135deg, #00aed6, #00a4a4);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 174, 214, 0.35);
+}
+.method-card:hover .method-logo { transform: rotate(-6deg) scale(1.06); }
+
+.method-info h4 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--text-0);
+  margin-bottom: 3px;
+  font-weight: 600;
+}
+.method-info small {
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.method-number {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(0, 212, 255, 0.05);
+  border: 1px dashed var(--border-mid);
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
+}
+.method-number span {
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--blue-200);
+  letter-spacing: 0.02em;
+  word-break: break-all;
+}
+.copy-btn {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid var(--border-mid);
+  color: var(--blue-400);
+  font-size: 0.9rem;
+  transition: all 0.3s var(--ease);
+  flex-shrink: 0;
+}
+.copy-btn:hover {
+  background: var(--blue-500);
+  color: var(--bg-0);
+  transform: scale(1.05);
+  box-shadow: 0 0 20px var(--blue-glow);
+}
+.copy-btn.copied {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+.method-note {
+  color: var(--text-3);
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.method-note i { color: var(--blue-500); font-size: 0.75rem; }
+
+/* STEPS */
+.steps-section {
+  margin-bottom: 60px;
+}
+.steps-head {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.steps-head h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  color: var(--text-0);
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.steps-head h3 .accent {
+  background: linear-gradient(120deg, var(--blue-400), var(--blue-300));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.steps-head p { color: var(--text-2); font-size: 0.95rem; }
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.step-card {
+  position: relative;
+  padding: 28px 24px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, rgba(10, 14, 20, 0.9), rgba(5, 7, 10, 0.9));
+  border: 1px solid var(--border-soft);
+  transition: all 0.35s var(--ease);
+}
+.step-card:hover {
+  border-color: var(--border-mid);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+.step-num {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: grid; place-items: center;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+  color: var(--bg-0);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 20px rgba(0, 212, 255, 0.3);
+}
+.step-card h4 {
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  color: var(--text-0);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.step-card p {
+  color: var(--text-2);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+/* INFO/FAQ */
+.faq-section {
+  margin-bottom: 40px;
+}
+.faq-head {
+  text-align: center;
+  margin-bottom: 34px;
+}
+.faq-head h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  color: var(--text-0);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+.faq-head p { color: var(--text-2); font-size: 0.92rem; }
+
+.faq-list {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.faq-item {
+  border-radius: var(--radius-md);
+  background: rgba(10, 14, 20, 0.65);
+  border: 1px solid var(--border-soft);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.faq-item:hover { border-color: var(--border-mid); }
+.faq-item.open { border-color: var(--border-mid); background: rgba(0, 212, 255, 0.04); }
+.faq-q {
+  width: 100%;
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-align: left;
+  font-size: 0.94rem;
+  font-weight: 500;
+  color: var(--text-0);
+  transition: color 0.3s ease;
+}
+.faq-q:hover { color: var(--blue-300); }
+.faq-q i {
+  font-size: 0.75rem;
+  color: var(--blue-400);
+  transition: transform 0.35s var(--ease);
+  flex-shrink: 0;
+}
+.faq-item.open .faq-q i { transform: rotate(180deg); }
+.faq-a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s var(--ease);
+}
+.faq-item.open .faq-a { max-height: 300px; }
+.faq-a-inner {
+  padding: 0 22px 18px;
+  color: var(--text-2);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+/* CTA BOTTOM */
+.cta-bottom {
+  padding: 44px 34px;
+  border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(10, 14, 20, 0.9));
+  border: 1.5px solid var(--border-mid);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cta-bottom::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 15%; right: 15%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue-500), transparent);
+}
+.cta-bottom h3 {
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+  color: var(--text-0);
+  margin-bottom: 10px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.cta-bottom p {
+  color: var(--text-2);
+  font-size: 0.94rem;
+  margin-bottom: 22px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.93rem;
+  transition: all 0.35s var(--ease);
+}
+.btn i { font-size: 0.9rem; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+  color: var(--bg-0);
+  box-shadow: 0 8px 30px rgba(0, 212, 255, 0.35);
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 45px rgba(0, 212, 255, 0.5);
+}
+.btn-ghost {
+  border: 1px solid var(--border-mid);
+  color: var(--blue-300);
+  background: rgba(0, 212, 255, 0.03);
+}
+.btn-ghost:hover {
+  border-color: var(--blue-500);
+  background: rgba(0, 212, 255, 0.09);
+  color: var(--blue-200);
+  transform: translateY(-3px);
+}
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  padding: 14px 24px;
+  border-radius: 999px;
+  background: rgba(10, 14, 20, 0.96);
+  border: 1px solid var(--border-mid);
+  color: var(--text-0);
+  font-size: 0.88rem;
+  font-weight: 500;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6), 0 0 30px var(--blue-glow);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.4s var(--ease-out);
+  backdrop-filter: blur(20px);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast i { color: var(--blue-500); }
+
+/* FOOTER */
+footer {
+  padding: 50px 40px 40px;
+  border-top: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, transparent, rgba(0, 212, 255, 0.02));
+  position: relative;
+  z-index: 1;
+}
+.footer-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 26px;
+}
+.footer-brand {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-0);
+}
+.footer-brand .logo-mark {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+  color: var(--bg-0);
+  font-weight: 900;
+  font-size: 0.95rem;
+}
+.footer-brand span { color: var(--blue-500); }
+.footer-socials { display: flex; gap: 12px; }
+.footer-socials a {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  border: 1px solid var(--border-soft);
+  color: var(--text-2);
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+.footer-socials a:hover {
+  border-color: var(--blue-500);
+  color: var(--blue-400);
+  background: rgba(0, 212, 255, 0.08);
+  transform: translateY(-3px);
+}
+.footer-copy {
+  color: var(--text-3);
+  font-size: 0.82rem;
+  text-align: center;
+  width: 100%;
+  margin-top: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-soft);
+}
+.footer-copy span { color: var(--blue-400); }
+
+/* RESPONSIVE */
+@media (max-width: 1000px) {
+  .payment-layout { grid-template-columns: 1fr; }
+  .qris-card { position: relative; top: 0; }
+}
+
+@media (max-width: 700px) {
+  main { padding: 110px 22px 60px; }
+  .qris-card { padding: 24px 20px; }
+  .page-title { font-size: 2rem; }
+  .method-card { padding: 22px 20px; }
+  .method-number span { font-size: 0.95rem; }
+  .cta-bottom { padding: 34px 24px; }
+  footer { padding: 40px 22px 30px; }
+  .footer-inner { flex-direction: column; text-align: center; }
+  .step-card { padding: 22px 20px; }
+}
+
+@media (max-width: 420px) {
+  .method-top { gap: 12px; }
+  .method-logo { width: 46px; height: 46px; font-size: 1.2rem; }
+  .method-number { padding: 12px 14px; }
+  .method-number span { font-size: 0.85rem; }
+  .faq-q { font-size: 0.88rem; padding: 16px 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- BG -->
+<div class="bg-layer"></div>
+<div class="bg-grid"></div>
+
+<!-- BACKDROP -->
+<div class="quick-menu-backdrop" id="quickMenuBackdrop"></div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <a href="index.html" class="nav-logo" data-cursor="hover">
+    <span class="logo-mark">F</span>
+    <span class="logo-text">Fortech<span>.</span></span>
+  </a>
+
+  <div class="nav-cta">
+    <!-- ===== 3 DOT QUICK MENU ===== -->
+    <div class="quick-menu-wrap">
+      <button class="quick-menu-btn" id="quickMenuBtn" aria-label="Menu Cepat" data-cursor="hover">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="quick-menu-panel" id="quickMenuPanel">
+        <div class="qm-header">
+          <span class="qm-title">Quick Menu</span>
+          <span class="qm-sub">Navigasi cepat</span>
+        </div>
+
+        <a href="index.html" class="qm-item" data-cursor="hover">
+          <div class="qm-ic"><i class="fa-solid fa-house"></i></div>
+          <div class="qm-txt">
+            <strong>About</strong>
+            <small>Portfolio & profil</small>
+          </div>
+          <i class="fa-solid fa-arrow-right qm-arrow"></i>
+        </a>
+
+        <a href="payment.html" class="qm-item active" data-cursor="hover">
+          <div class="qm-ic"><i class="fa-solid fa-wallet"></i></div>
+          <div class="qm-txt">
+            <strong>Payment <span class="qm-badge">QRIS</span></strong>
+            <small>DANA, GoPay, QRIS</small>
+          </div>
+          <i class="fa-solid fa-arrow-right qm-arrow"></i>
+        </a>
+
+        <a href="https://wa.me/6285196241829" target="_blank" rel="noopener" class="qm-item" data-cursor="hover">
+          <div class="qm-ic"><i class="fa-brands fa-whatsapp"></i></div>
+          <div class="qm-txt">
+            <strong>WhatsApp</strong>
+            <small>Chat langsung</small>
+          </div>
+          <i class="fa-solid fa-arrow-right qm-arrow"></i>
+        </a>
+
+        <a href="mailto:iqbal@cu4dev.biz.id" class="qm-item" data-cursor="hover">
+          <div class="qm-ic"><i class="fa-solid fa-envelope"></i></div>
+          <div class="qm-txt">
+            <strong>Email</strong>
+            <small>iqbal@cu4dev.biz.id</small>
+          </div>
+          <i class="fa-solid fa-arrow-right qm-arrow"></i>
+        </a>
+      </div>
+    </div>
+
+    <a href="index.html" class="btn-nav" data-cursor="hover">
+      <i class="fa-solid fa-arrow-left"></i> Kembali
+    </a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main>
+  <div class="page-head">
+    <div class="page-tag">Payment & Donation</div>
+    <h1 class="page-title">Dukung Karya, <span class="accent">Bayar Gampang.</span></h1>
+    <p class="page-desc">
+      Semua pembayaran untuk project, jasa, atau donasi bisa melalui QRIS (utama), DANA, atau GoPay.
+      Terima kasih sudah mendukung karya Fortech.
+    </p>
+  </div>
+
+  <div class="payment-layout">
+    <!-- QRIS (MAIN) -->
+    <div class="qris-card" id="qrisCard">
+      <div class="qris-header">
+        <div class="qris-badge">
+          <i class="fa-solid fa-qrcode"></i> QRIS AllPay
+        </div>
+        <div class="qris-primary-tag">Utama</div>
+      </div>
+
+      <h2 class="qris-title">Scan & Bayar</h2>
+      <p class="qris-sub">Bisa dari semua bank & e-wallet di Indonesia.</p>
+
+      <div class="qris-frame">
+        <div class="qris-img-wrap" id="qrisImgWrap">
+          <img src="qris.jpg" alt="QRIS AllPay — Fortech" id="qrisImg">
+          <div class="qris-fallback">
+            <i class="fa-solid fa-qrcode"></i>
+            <span>QRIS.jpg tidak ditemukan</span>
+            <small>Taruh file qris.jpg di folder yang sama</small>
+          </div>
+          <div class="qris-scan-line"></div>
+        </div>
+      </div>
+
+      <div class="qris-footer">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>QRIS resmi — dari semua bank & e-wallet</span>
+      </div>
+    </div>
+
+    <!-- OTHER METHODS -->
+    <div class="methods-col">
+      <div class="methods-col-head">
+        <h3>Metode Lain</h3>
+        <p>Transfer langsung ke e-wallet di bawah ini.</p>
+      </div>
+
+      <!-- DANA -->
+      <div class="method-card">
+        <div class="method-top">
+          <div class="method-logo dana">D</div>
+          <div class="method-info">
+            <h4>DANA</h4>
+            <small>E-Wallet</small>
+          </div>
+        </div>
+        <div class="method-number">
+          <span id="danaNumber">0851-9624-1829</span>
+          <button class="copy-btn" data-copy="085196241829" data-cursor="hover" aria-label="Copy nomor DANA">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+        </div>
+        <div class="method-note">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Atas nama Iqbal Yudha Pramudya</span>
+        </div>
+      </div>
+
+      <!-- GOPAY -->
+      <div class="method-card">
+        <div class="method-top">
+          <div class="method-logo gopay">G</div>
+          <div class="method-info">
+            <h4>GoPay</h4>
+            <small>E-Wallet</small>
+          </div>
+        </div>
+        <div class="method-number">
+          <span id="gopayNumber">0897-7106-6007</span>
+          <button class="copy-btn" data-copy="08977106607" data-cursor="hover" aria-label="Copy nomor GoPay">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+        </div>
+        <div class="method-note">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>Atas nama Iqbal Yudha Pramudya</span>
+        </div>
+      </div>
+
+      <!-- Konfirmasi -->
+      <div class="method-card" style="background: linear-gradient(160deg, rgba(0,212,255,0.06), rgba(10,14,20,0.9)); border-color: var(--border-mid);">
+        <div class="method-top">
+          <div class="method-logo" style="background: linear-gradient(135deg, #25d366, #128c7e); color:#fff; box-shadow: 0 8px 24px rgba(37,211,102,0.35);">
+            <i class="fa-brands fa-whatsapp"></i>
+          </div>
+          <div class="method-info">
+            <h4>Konfirmasi Pembayaran</h4>
+            <small>WAJIB — setelah transfer</small>
+          </div>
+        </div>
+        <p style="color: var(--text-2); font-size: 0.88rem; margin-bottom: 14px; line-height: 1.65;">
+          Setelah melakukan pembayaran, kirim screenshot bukti transfer via WhatsApp
+          agar bisa segera diproses.
+        </p>
+        <a href="https://wa.me/6285196241829?text=Halo%20Fortech%2C%20saya%20sudah%20melakukan%20pembayaran.%20Berikut%20bukti%20transfernya." target="_blank" rel="noopener" class="btn btn-primary" data-cursor="hover" style="width: 100%; justify-content: center;">
+          <i class="fa-brands fa-whatsapp"></i> Konfirmasi via WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps-section">
+    <div class="steps-head">
+      <h3>Cara <span class="accent">Pembayaran</span></h3>
+      <p>Ikuti langkah berikut supaya prosesnya lancar.</p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h4>Pilih Metode</h4>
+        <p>Pilih QRIS (utama), DANA, atau GoPay sesuai yang paling mudah untuk kamu.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h4>Scan / Transfer</h4>
+        <p>Untuk QRIS, scan pakai m-banking atau e-wallet apa saja. Untuk DANA/GoPay, transfer ke nomor yang tersedia.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h4>Screenshot Bukti</h4>
+        <p>Simpan screenshot bukti pembayaran sebagai konfirmasi.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <h4>Konfirmasi via WA</h4>
+        <p>Kirim bukti transfer ke WhatsApp <strong style="color:var(--blue-300)">0851-9624-1829</strong> agar segera diproses.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <div class="faq-head">
+      <h3>Pertanyaan Umum</h3>
+      <p>Beberapa hal yang sering ditanyakan.</p>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" data-cursor="hover">
+          <span>Metode mana yang paling disarankan?</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            QRIS adalah metode utama dan paling disarankan karena bisa digunakan dari semua bank
+            dan e-wallet di Indonesia. Cukup scan, langsung jadi.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" data-cursor="hover">
+          <span>Apakah pembayaran ini aman?</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Ya. QRIS yang tertera adalah QRIS resmi. Untuk DANA dan GoPay, nomor yang
+            terdaftar adalah milik saya pribadi (Iqbal Yudha Pramudya).
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" data-cursor="hover">
+          <span>Berapa lama proses setelah transfer?</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Setelah konfirmasi via WhatsApp, biasanya diproses pada hari yang sama
+            (jam 07.00–21.00 WIB). Di luar jam tersebut akan diproses keesokan harinya.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" data-cursor="hover">
+          <span>Bisa transfer dari bank lain?</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Bisa. Selama bank atau e-wallet kamu mendukung QRIS, transfer ke QRIS di atas
+            bisa dilakukan dari mana saja.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" data-cursor="hover">
+          <span>Bagaimana kalau ada kendala?</span>
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="faq-a">
+          <div class="faq-a-inner">
+            Hubungi langsung via WhatsApp <strong style="color: var(--blue-300)">0851-9624-1829</strong>
+            atau email <strong style="color: var(--blue-300)">iqbal@cu4dev.biz.id</strong>. Akan dibantu secepatnya.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA BOTTOM -->
+  <div class="cta-bottom">
+    <h3>Ada Pertanyaan Sebelum Bayar?</h3>
+    <p>Jangan ragu hubungi saya dulu — biar sama-sama enak.</p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a href="https://wa.me/6285196241829" target="_blank" rel="noopener" class="btn btn-primary" data-cursor="hover">
+        <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
+      </a>
+      <a href="index.html" class="btn btn-ghost" data-cursor="hover">
+        <i class="fa-solid fa-house"></i> Kembali ke Portfolio
+      </a>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo-mark">F</span>
+      Fortech<span>.</span>
+    </div>
+
+    <div class="footer-socials">
+      <a href="https://wa.me/6285196241829" target="_blank" rel="noopener" aria-label="WhatsApp" data-cursor="hover">
+        <i class="fa-brands fa-whatsapp"></i>
+      </a>
+      <a href="index.html" aria-label="Home" data-cursor="hover">
+        <i class="fa-solid fa-house"></i>
+      </a>
+      <a href="mailto:iqbal@cu4dev.biz.id" aria-label="Email" data-cursor="hover">
+        <i class="fa-solid fa-envelope"></i>
+      </a>
+    </div>
+
+    <div class="footer-copy">
+      © <span id="year"></span> <span>Iqbal Yudha Pramudya</span> — Fortech. Dlingo, Bantul, DIY.
+    </div>
+  </div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i class="fa-solid fa-check"></i>
+  <span id="toastText">Nomor berhasil dicopy</span>
+</div>
+
+<script>
+/* CURSOR */
+(function() {
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  if (!dot || !ring) return;
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  window.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+  });
+  (function loop() {
+    rx += (mx - rx) * 0.18;
+    ry += (my - ry) * 0.18;
+    ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+  document.querySelectorAll('[data-cursor="hover"], a, button, .faq-q, .copy-btn').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover'));
+  });
+  window.addEventListener('mousedown', () => ring.classList.add('click'));
+  window.addEventListener('mouseup', () => ring.classList.remove('click'));
+})();
+
+/* NAVBAR SCROLL */
+(function() {
+  const nb = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 40) nb.classList.add('scrolled');
+    else nb.classList.remove('scrolled');
+  }, { passive: true });
+})();
+
+/* 3 DOT QUICK MENU */
+(function() {
+  const btn = document.getElementById('quickMenuBtn');
+  const panel = document.getElementById('quickMenuPanel');
+  const backdrop = document.getElementById('quickMenuBackdrop');
+  if (!btn || !panel) return;
+
+  function close() {
+    btn.classList.remove('open');
+    panel.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('open');
+  }
+  function toggle(e) {
+    e.stopPropagation();
+    if (panel.classList.contains('open')) { close(); return; }
+    btn.classList.add('open');
+    panel.classList.add('open');
+    if (backdrop) backdrop.classList.add('open');
+  }
+  btn.addEventListener('click', toggle);
+  if (backdrop) backdrop.addEventListener('click', close);
+  document.addEventListener('click', (e) => {
+    if (!panel.classList.contains('open')) return;
+    if (!panel.contains(e.target) && !btn.contains(e.target)) close();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') close();
+  });
+})();
+
+/* COPY BUTTONS */
+(function() {
+  const toast = document.getElementById('toast');
+  const toastText = document.getElementById('toastText');
+  let toastTimer;
+
+  function showToast(msg) {
+    if (!toast) return;
+    toastText.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const text = btn.getAttribute('data-copy');
+      if (!text) return;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+        }
+        const icon = btn.querySelector('i');
+        const old = icon.className;
+        icon.className = 'fa-solid fa-check';
+        btn.classList.add('copied');
+        showToast('Nomor berhasil dicopy: ' + text);
+        setTimeout(() => {
+          icon.className = old;
+          btn.classList.remove('copied');
+        }, 1800);
+      } catch (err) {
+        showToast('Gagal copy. Salin manual ya.');
+      }
+    });
+  });
+})();
+
+/* QRIS IMAGE FALLBACK */
+(function() {
+  const img = document.getElementById('qrisImg');
+  const wrap = document.getElementById('qrisImgWrap');
+  if (!img || !wrap) return;
+
+  function noImg() { wrap.classList.add('no-img'); }
+  img.addEventListener('error', noImg);
+  if (img.complete && img.naturalWidth === 0) noImg();
+})();
+
+/* FAQ ACCORDION */
+(function() {
+  document.querySelectorAll('.faq-item').forEach(item => {
+    const q = item.querySelector('.faq-q');
+    if (!q) return;
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(o => o.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+})();
+
+/* YEAR */
+document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
